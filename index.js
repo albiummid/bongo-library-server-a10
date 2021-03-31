@@ -7,7 +7,7 @@ require('dotenv').config()
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 
 app.get('/', (req, res) => {
@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
 })
 
 const MongoClient = require('mongodb').MongoClient;
+const { ObjectId } = require('bson');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gpn2l.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
@@ -35,6 +36,14 @@ client.connect(err => {
     booksCollection.find({})
       .toArray((err, documents) => {
       res.send(documents)
+    })
+  })
+  app.get('/book/:id', (req, res) => {
+    console.log(req.params.id);
+    booksCollection.find({_id:ObjectId(`${req.params.id}`)})
+      .toArray((err, documents) => {
+        res.send(documents)
+        console.log(err,"for finding a book");
     })
   })
 
