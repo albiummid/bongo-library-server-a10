@@ -20,6 +20,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
   const booksCollection = client.db("bongoLibrary").collection("books");
+  const ordersCollection = client.db("bongoLibrary").collection("orders");
   console.log("database connected , error:",err);
   
   app.post('/addProduct', (req, res) => {
@@ -29,6 +30,32 @@ client.connect(err => {
       .then(result => {
         console.log(result.insertedCount, 'insertedCount');
         res.send(result.insertedCount > 0)
+    })
+  })
+  app.post('/addOrders', (req, res) => {
+    const orderInfo = req.body;
+    console.log(orderInfo);
+    ordersCollection.insertOne(orderInfo)
+      .then(result => {
+        console.log(result.insertedCount);
+      res.send(result.insertedCount > 0)
+      })
+    .catch(err => console.log("errorororor",err))
+  })
+
+  app.get('/orders', (req, res) => {
+    ordersCollection.find({})
+      .toArray((err, documents) => {
+      res.send(documents)
+    })
+  })
+
+  app.get('/userOrders', (req, res) => {
+    const queryEmail = req.query.email;
+    
+    ordersCollection.find({email:queryEmail})
+      .toArray((err, documents) => {
+      res.send(documents)
     })
   })
   
