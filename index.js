@@ -1,5 +1,5 @@
 const express = require('express')
-const port = 5009 || process.env.PORT;
+const port = 5009;
 const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config()
@@ -76,4 +76,4 @@ client.connect(err => {
 
 });
 
-app.listen(port)
+app.listen(process.env.PORT || port)
