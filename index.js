@@ -23,7 +23,7 @@ client.connect(err => {
   const ordersCollection = client.db("bongoLibrary").collection("orders");
   console.log("database connected , error:",err);
   
-  app.post('/addProduct', (req, res) => {
+  app.post('/addBook', (req, res) => {
     const productInfo = req.body;
     console.log("adding new product", productInfo);
     booksCollection.insertOne(productInfo)
