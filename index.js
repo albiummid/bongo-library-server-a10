@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 app.get('/', (req, res) => {
-  res.send('This is port 5000')
+  res.send('Welcome to bongo library Server')
 })
 
 const MongoClient = require('mongodb').MongoClient;
@@ -21,10 +21,42 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 client.connect(err => {
   const booksCollection = client.db("bongoLibrary").collection("books");
   const ordersCollection = client.db("bongoLibrary").collection("orders");
-  console.log("database connected , error:",err);
+  console.log("database connected , error:", err);
   
+  // for delete
+  app.delete('/deleteBook/:id', (req, res) => {
+    console.log(req.params.id);
+    booksCollection.deleteOne({ _id: ObjectId(`${req.params.id}`) })
+      .then(result => {
+        res.send(result.deletedCount > 0)
+      console.log(result);
+    })
+  })
+
+  app.delete('/deleteOrder/:id', (req, res) => {
+    console.log(req.params.id);
+    ordersCollection.deleteOne({ _id: ObjectId(`${req.params.id}`) })
+      .then(result => {
+        res.send(result.deletedCount > 0)
+      console.log(result);
+    })
+  })
+
+
+  // for patch
+  app.patch('/edit/:id', (req, res) => {
+    booksCollection.updateOne({ _id: ObjectId(`${req.params.id}`) }, {
+      $set:{name: req.body.name,author: req.body.author , price:req.body.price}
+    })
+    .then(result => res.send(result.modifiedCount>0))
+    console.log(req.body);
+  })
+  
+  
+  // for add
   app.post('/addBook', (req, res) => {
     const productInfo = req.body;
+    console.log(req.body);
     console.log("adding new product", productInfo);
     booksCollection.insertOne(productInfo)
       .then(result => {
@@ -32,6 +64,7 @@ client.connect(err => {
         res.send(result.insertedCount > 0)
     })
   })
+
   app.post('/addOrders', (req, res) => {
     const orderInfo = req.body;
     console.log(orderInfo);
@@ -43,6 +76,8 @@ client.connect(err => {
     .catch(err => console.log("errorororor",err))
   })
 
+
+  // for get value from api
   app.get('/orders', (req, res) => {
     ordersCollection.find({})
       .toArray((err, documents) => {
@@ -70,7 +105,6 @@ client.connect(err => {
     booksCollection.find({_id:ObjectId(`${req.params.id}`)})
       .toArray((err, documents) => {
         res.send(documents)
-        console.log(err,"for finding a book");
     })
   })
 
